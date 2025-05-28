@@ -9,7 +9,7 @@ import javax.servlet.http.*;
 import model.dao.UserDao;
 import model.dto.UserDto;
 
-@WebServlet("/Login")
+@WebServlet("/login")
 public class LoginController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -20,20 +20,28 @@ public class LoginController extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
-		
+
 		HttpSession session = request.getSession();
 		String input_id = request.getParameter("id");
 		String input_pw = request.getParameter("pw");
-		
-		if (!input_id.isEmpty()&&!input_pw.isEmpty()) {
+
+		if (!input_id.isEmpty() && !input_pw.isEmpty() && input_id != null && input_pw != null) {
 			UserDto dto = new UserDto(input_id, input_pw);
 			UserDao dao = new UserDao();
-			dao.login(dto);
-			session.setAttribute("loginID", input_id);
-			
-			//메인 페이지로 보내는 문구
+			UserDto user = dao.login(dto);
+			if (user != null) {
+				session.setAttribute("loginID", user.getId());
+
+				response.sendRedirect("/index.jsp");
+			} else {
+				request.setAttribute("errorMsg", "존재하지 않는 아이디 혹은 비밀번호입니다");
+				request.setAttribute("input_id", input_id);
+				request.getRequestDispatcher("/login.jsp").forward(request, response);
+			}
 		} else {
-			//아이디와 비밀번호를 입력하라는 문구 출력
+			request.setAttribute("errorMsg", "아이디와 비밀번호를 입력해주세요");
+			request.setAttribute("input_id", input_id);
+			request.getRequestDispatcher("/login.jsp").forward(request, response);
 		}
 	}
 }

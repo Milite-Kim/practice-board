@@ -8,8 +8,8 @@ import model.dto.UserDto;
 
 public class UserDao extends DBDao {
 	/* 로그인 */
-	public boolean login(UserDto d) {
-		boolean result = false;
+	public UserDto login(UserDto d) {
+		UserDto result = null;
 		Connection con = null;
 		PreparedStatement pst = null;
 		ResultSet rs = null;
@@ -22,7 +22,7 @@ public class UserDao extends DBDao {
 			pst.setString(2, d.getPw());
 			rs = pst.executeQuery();
 			if (rs.next()) {
-				result = true;
+				result = new UserDto(rs.getString("id"), rs.getString("pw"));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
